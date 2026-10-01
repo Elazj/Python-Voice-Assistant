@@ -11,6 +11,10 @@ import requests
 
 r = sr.Recognizer()
 
+# Microphone device index; run sr.Microphone.list_microphone_names() to find yours
+mic_index = os.environ.get("NOCTURNA_MIC")
+mic_index = int(mic_index) if mic_index else None
+
 def nocturna_speak(audio_string):
     tts = gTTS(text=audio_string, lang='en')
     r = random.randint(1, 10000000)
@@ -21,10 +25,11 @@ def nocturna_speak(audio_string):
     os.remove(audio_file)
 
 def record_audio(ask=False):
-    with sr.Microphone() as source:
+    with sr.Microphone(device_index=mic_index) as source:
         if ask:
             nocturna_speak(ask)
         r.adjust_for_ambient_noise(source)
+        print("Listening...")
         try:
             audio = r.listen(source, timeout=5)
             voice_data = r.recognize_google(audio)
